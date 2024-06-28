@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upbit - 가상자산 거래</title>
+    <title>코인 거래 게임</title>
     <style>
         body { 
             font-family: 'Noto Sans KR', sans-serif;
@@ -207,41 +207,35 @@
         .balance-item span {
             font-size: 16px;
         }
-    </style>
-</head>
+    </style></head>
 <body>
-    <header> 
-        <div class="logo"> 
-            <img src="https://www.upbit.com/static/images/logo_upbit_pc.svg" alt="Upbit Logo"> 
-        </div> 
-        <nav> 
-            <a href="#">로그인</a> 
-            <a href="#">회원가입</a> 
-            <div class="language"> 
-                <a href="#">EN</a> 
-                <a href="#">KO</a> 
-            </div> 
-        </nav> 
+    <header>
+        <div class="logo">
+            <img src="logo.png" alt="코인 거래 게임 로고">
+        </div>
+        <nav>
+            <a href="#">게임 정보</a>
+            <a href="#">도움말</a>
+        </nav>
     </header>
-
     <main>
         <aside class="sidebar">
             <ul class="coin-list">
                 <li data-coin="BTC/KRW" data-name="비트코인">
                     <a href="#">
-                        <img src="https://www.upbit.com/static/images/icon_coin_btc.svg" alt="비트코인">
+                        <img src="bitcoin.svg" alt="비트코인">
                         비트코인 (BTC/KRW)
                     </a>
                 </li>
                 <li data-coin="ETH/KRW" data-name="이더리움">
                     <a href="#">
-                        <img src="https://www.upbit.com/static/images/icon_coin_eth.svg" alt="이더리움">
+                        <img src="ethereum.svg" alt="이더리움">
                         이더리움 (ETH/KRW)
                     </a>
                 </li>
                 <li data-coin="ADA/KRW" data-name="에이다">
                     <a href="#">
-                        <img src="https://www.upbit.com/static/images/icon_coin_ada.svg" alt="에이다">
+                        <img src="cardano.svg" alt="에이다">
                         에이다 (ADA/KRW)
                     </a>
                 </li>
@@ -250,8 +244,8 @@
         <div class="content">
             <div class="coin-info">
                 <h1 id="coin-name">비트코인 (BTC/KRW)</h1>
-                <div class="price" id="coin-price">87,677,000</div>
-                <div class="change" id="coin-change">+0.26% <span id="coin-change-value">227,000</span></div>
+                <div class="price" id="coin-price"></div>
+                <div class="change" id="coin-change"></div>
             </div>
             <div class="chart-container">
                 <canvas id="chart"></canvas>
@@ -281,11 +275,11 @@
                 <h2>잔액</h2>
                 <div class="balance-item">
                     <span>KRW</span>
-                    <span id="krw-balance">10,000,000</span>
+                    <span id="krw-balance"></span>
                 </div>
                 <div class="balance-item">
                     <span>BTC</span>
-                    <span id="btc-balance">0.012345</span>
+                    <span id="btc-balance"></span>
                 </div>
             </div>
         </div>
@@ -296,7 +290,6 @@
         const coinNameElement = document.getElementById('coin-name');
         const coinPriceElement = document.getElementById('coin-price');
         const coinChangeElement = document.getElementById('coin-change');
-        const coinChangeValueElement = document.getElementById('coin-change-value');
         const chartCanvas = document.getElementById('chart');
         const buyButton = document.querySelector('.buy');
         const sellButton = document.querySelector('.sell');
@@ -306,25 +299,22 @@
         const coinListItems = document.querySelectorAll('.coin-list li');
 
         let currentCoin = 'BTC/KRW';
-        let krwBalance = 10000000;
-        let btcBalance = 0.012345;
+        let krwBalance = 1000000; // 시작 잔액 설정
+        let btcBalance = 0; // 시작 코인 잔액 설정
 
-        // 코인 가격 및 변동 정보 초기 값 설정
+        // 코인 가격 데이터 (랜덤 초기 값 설정)
         const coinData = {
-            "BTC/KRW": {
-                price: 87677000,
-                change: 0.26,
-                changeValue: 227000,
+            'BTC/KRW': {
+                price: 50000000, // 비트코인 초기 가격 설정
+                change: 0 // 초기 변동률 설정
             },
-            "ETH/KRW": {
-                price: 1950000,
-                change: -1.5,
-                changeValue: -30000,
+            'ETH/KRW': {
+                price: 2000000, // 이더리움 초기 가격 설정
+                change: 0 // 초기 변동률 설정
             },
-            "ADA/KRW": {
-                price: 950,
-                change: 3.2,
-                changeValue: 30,
+            'ADA/KRW': {
+                price: 10000, // 에이다 초기 가격 설정
+                change: 0 // 초기 변동률 설정
             }
         };
 
@@ -352,29 +342,34 @@
 
         // 코인 정보 업데이트 함수
         function updateCoinInfo(coin) {
-            const data = coinData[coin];
-            coinPriceElement.textContent = data.price;
-            coinChangeElement.textContent = `${data.change.toFixed(2)}%`;
-            coinChangeElement.classList.toggle('down', data.change < 0);
-            coinChangeValueElement.textContent = data.changeValue;
+            coinPriceElement.textContent = coinData[coin].price.toLocaleString();
+            coinChangeElement.textContent = `${coinData[coin].change.toFixed(2)}%`;
+            coinChangeElement.classList.toggle('down', coinData[coin].change < 0);
         }
 
-        // 차트 업데이트 함수
+        // 차트 업데이트 함수 (랜덤 가격 변동 적용)
         function updateChart() {
-            const randomChange = Math.floor(Math.random() * (100000 - (-100000)) + (-100000));
-            const currentTime = new Date();
-            const timeString = `${currentTime.getHours()}:${currentTime.getMinutes()}:${currentTime.getSeconds()}`;
+            for (const coin in coinData) {
+                // 랜덤 변동 적용
+                coinData[coin].change = Math.random() * 0.1 - 0.05; // -0.05% ~ 0.05% 랜덤 변동
+                coinData[coin].price += coinData[coin].price * coinData[coin].change / 100;
 
-            // 현재 코인의 가격을 차트 데이터에 추가
-            chart.data.labels.push(timeString);
-            chart.data.datasets[0].data.push(coinData[currentCoin].price);
+                // 차트 데이터 추가
+                chart.data.labels.push(new Date().toLocaleTimeString());
+                chart.data.datasets[0].data.push(coinData[coin].price);
+            }
 
+            // 차트 업데이트
+            chart.update();
+
+            // 최근 10개 데이터만 유지
             if (chart.data.labels.length > 10) {
                 chart.data.labels.shift();
                 chart.data.datasets[0].data.shift();
             }
 
-            chart.update();
+            // 코인 정보 업데이트
+            updateCoinInfo(currentCoin);
         }
 
         // 주문 내역 추가 함수
@@ -387,35 +382,35 @@
             const totalCell = row.insertCell();
             const statusCell = row.insertCell();
 
-            const currentTime = new Date();
-            const timeString = `${currentTime.getHours()}:${currentTime.getMinutes()}:${currentTime.getSeconds()}`;
-
-            timeCell.textContent = timeString;
+            timeCell.textContent = new Date().toLocaleTimeString();
             typeCell.textContent = type;
-            typeCell.classList.add(type === '매도' ? 'sell' : '');
-            priceCell.textContent = price;
+            if (type === '매도') {
+                typeCell.classList.add('sell');
+            }
+            priceCell.textContent = price.toLocaleString();
             quantityCell.textContent = quantity;
-            totalCell.textContent = total;
+            totalCell.textContent = total.toLocaleString();
             statusCell.textContent = status;
-            statusCell.classList.add(status === '완료' ? '' : (status === '처리 중' ? 'processing' : 'cancel'));
         }
 
-        // 매도/매수 기능
+        // 잔액 업데이트 함수
+        function updateBalance() {
+            krwBalanceElement.textContent = krwBalance.toLocaleString();
+            btcBalanceElement.textContent = btcBalance.toFixed(8);
+        }
+
+        // 매수/매도 버튼 클릭 이벤트 처리
         buyButton.addEventListener('click', () => {
-            const price = parseInt(coinPriceElement.textContent, 10);
-            const quantity = prompt('매수할 수량을 입력하세요 (KRW 단위)', '100000');
+            const price = coinData[currentCoin].price;
+            const quantity = prompt('매수할 수량을 입력하세요 (소수점 가능):');
+
             if (quantity) {
-                const total = price * quantity / 1000000;
+                const total = price * parseFloat(quantity);
                 if (krwBalance >= total) {
                     krwBalance -= total;
-                    btcBalance += quantity / 1000000 / price;
-
-                    // 매수 시 코인 가격 변동 시뮬레이션
-                    coinData[currentCoin].price += total / 1000000;
-
+                    btcBalance += parseFloat(quantity);
                     addOrderHistory('매수', price, quantity, total, '완료');
-                    krwBalanceElement.textContent = krwBalance;
-                    btcBalanceElement.textContent = btcBalance.toFixed(8);
+                    updateBalance();
                 } else {
                     alert('잔액이 부족합니다.');
                 }
@@ -423,22 +418,18 @@
         });
 
         sellButton.addEventListener('click', () => {
-            const price = parseInt(coinPriceElement.textContent, 10);
-            const quantity = prompt('매도할 수량을 입력하세요 (BTC 단위)', '0.001');
+            const price = coinData[currentCoin].price;
+            const quantity = prompt('매도할 수량을 입력하세요 (소수점 가능):');
+
             if (quantity) {
-                const total = price * quantity * 1000000;
-                if (btcBalance >= quantity) {
-                    btcBalance -= quantity;
+                const total = price * parseFloat(quantity);
+                if (btcBalance >= parseFloat(quantity)) {
                     krwBalance += total;
-
-                    // 매도 시 코인 가격 변동 시뮬레이션
-                    coinData[currentCoin].price -= total / 1000000;
-
-                    addOrderHistory('매도', price, quantity * 1000000, total, '완료');
-                    krwBalanceElement.textContent = krwBalance;
-                    btcBalanceElement.textContent = btcBalance.toFixed(8);
+                    btcBalance -= parseFloat(quantity);
+                    addOrderHistory('매도', price, quantity, total, '완료');
+                    updateBalance();
                 } else {
-                    alert('보유량이 부족합니다.');
+                    alert('보유 코인이 부족합니다.');
                 }
             }
         });
@@ -451,35 +442,24 @@
 
                 currentCoin = coin;
                 coinNameElement.textContent = `${name} (${coin})`;
-                updateCoinInfo(coin);
 
-                // 차트 데이터를 새로운 코인에 맞게 변경해야 합니다.
+                // 차트 데이터 초기화
                 chart.data.datasets[0].label = name;
                 chart.data.datasets[0].data = [];
                 chart.data.labels = [];
                 chart.update();
+
+                // 코인 정보 업데이트
+                updateCoinInfo(coin);
             });
         });
 
         // 초기 설정
         updateCoinInfo(currentCoin);
-        addOrderHistory('매수', 87677000, 100000, 8767700, '완료');
-        addOrderHistory('매도', 87500000, 50000, 4375000000, '처리 중');
-        addOrderHistory('매수', 87800000, 200000, 17560000000, '취소');
+        updateBalance();
 
-        // 1초마다 업데이트
-        setInterval(() => {
-            // 코인 가격 변동
-            for (const coin in coinData) {
-                // 매수/매도 시 가격 변동이 반영되도록 수정
-                coinData[coin].price += Math.floor(Math.random() * (500000 - (-500000)) + (-500000));
-                coinData[coin].change = (coinData[coin].price / coinData[coin].price - coinData[coin].changeValue / 1000000 - 1) * 100;
-                coinData[coin].changeValue = coinData[coin].price - coinData[coin].price + coinData[coin].changeValue;
-            }
-
-            updateCoinInfo(currentCoin);
-            updateChart();
-        }, 1000);
+        // 1초마다 차트 및 가격 업데이트
+        setInterval(updateChart, 1000);
     </script>
 </body>
 </html>
